@@ -1,11 +1,11 @@
 import { body } from "express-validator";
 
-export const addlocationValidation = [
-    body("cityName", "location name is required").not().isEmpty(),
+export const addexpenseValidation = [
+    body("cityName", "expense name is required").not().isEmpty(),
 ];
 
-export const addweatherDataValidation = [
-    body("name", "weatherData name is required").not().isEmpty(),
+export const addbudgetValidation = [
+    body("name", "budget name is required").not().isEmpty(),
 ];
 
 export const forgotPasswordValidation = [
@@ -23,13 +23,12 @@ export const otpValidation = [
 ];
 
 export const testValidations = [
-    body("cityName", "location name is required").not().isEmpty(),
+    body("cityName", "expense name is required").not().isEmpty(),
     body("email", "Email is required").not().isEmpty(),
     body("email", "Invalid email").isEmail(),
 ];
 
 export const signUpValidations = [
-    body("Names", " names is required").not().isEmpty(),
     body("email", "Email is required").not().isEmpty(),
     body("email", "Invalid email").isEmail(),
     body("password", "Password is required").not().isEmpty(),

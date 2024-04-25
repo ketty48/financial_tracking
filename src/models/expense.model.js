@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import { model, Schema,mongoose } from "mongoose";
 
 const expenseSchema = new mongoose.Schema({
     user: {
