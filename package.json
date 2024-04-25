@@ -1,0 +1,41 @@
+{
+  "name": "financialtracking",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "type": "module",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ketty48/financial_tracking.git"
+  },
+  "author": "Magnifique",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ketty48/financial_tracking.git/issues"
+  },
+  "homepage": "https://github.com/ketty48/financial_tracking.git#readme",
+  "dependencies": {
+    "axios": "^1.6.8",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-validator": "^7.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.3.2",
+    "node-fetch": "^3.3.2",
+    "nodemailer": "^6.9.13",
+    "swagger": "^0.7.5",
+    "swagger-ui-express": "^5.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
