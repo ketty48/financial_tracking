@@ -8,7 +8,7 @@ import { otpGenerator } from "../utils/otp.js";
 import { UnauthorizedError } from "../errors/UnauthorizedError.js";
 import jwt from "jsonwebtoken";
 import Token from "../models/authToken.model.js";
-import { fetchWeatherData, storeWeatherData } from "./weatherData.controller.js";
+import { fetchWeatherData, storeWeatherData } from "./budget.controller.js";
 
 export const SignUp = asyncWrapper(async (req, res, next) => {
     // Validation
@@ -36,12 +36,10 @@ export const SignUp = asyncWrapper(async (req, res, next) => {
     await storeWeatherData(locationWeatherData);
     // Recording the user to the database
     const newUser = new UserModel({
-        Names: req.body.Names,
         email: req.body.email,
         password: hashedPassword,
         otp: otp,
         otpExpires: otpExpirationDate,
-        location: req.body.location
     });
 
     const savedUser = await newUser.save();
