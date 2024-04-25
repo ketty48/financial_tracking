@@ -1,11 +1,6 @@
 import { Schema, model,mongoose } from 'mongoose';
 
 const UserSchema = new Schema({
-    Names: {
-        type: String,
-        required: true,
-
-    },
     email: {
         type: String,
         required: true,
@@ -23,12 +18,6 @@ const UserSchema = new Schema({
         type: Date,
         required: false,
     },
-    location:[
-        {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'locations',
-        required: false
-    }],
     verified: {
         type: Boolean,
         required: true,
@@ -47,6 +36,6 @@ const UserSchema = new Schema({
     timestamps: true,
 });
 
-const userModel = model('user', UserSchema);
+const userModel = model('User', UserSchema);
 
 export default userModel;
