@@ -3,6 +3,7 @@ import expenseModel from '../models/expense.model.js';
 import { validationResult } from 'express-validator';
 import asyncWrapper from '../middlewares/async.js';
 import Expense from '../models/expense.model.js';
+import user from '../models/user.model.js';
 
 
 export const addExpense = asyncWrapper(async (req, res, next) => {
@@ -22,36 +23,17 @@ export const addExpense = asyncWrapper(async (req, res, next) => {
         });
     }
   });
-  export const getUserExpenses=asyncWrapper(async(req,res,next)=>{
-    const expenses=await expenseModel.findById(req.user.id)
-    return res.status(200).json(expenses)
-  });
-  
+
 export const getExpenses=asyncWrapper(async(req,res,next)=>{
-    const expenses=await expenseModel.find()
+    const expenses=await expenseModel.find({ user: req.user.id })
     return res.status(200).json(expenses)
 })
-export const getExpense=asyncWrapper(async(req,res,next)=>{
-    const expense=await expenseModel.findById(req.params.id)
-    if (!expense) {
-        return next(new NotFoundError(`expense not found`));
-    }
-    return res.status(200).json(expense)
+export const list=asyncWrapper(async(req,res,next)=>{
+  const expenses=await expenseModel.find()
+  return res.status(200).json(expenses)
 })
-export const deleteExpense=asyncWrapper(async(req,res,next)=>{
-    const expense=await expenseModel.FindByIdAndDelete(req.params.id)
-    if (!expense) {
-        return next(new NotFoundError(`expense not found`));
-    }
-    return res.status(200).json(expense)
-})
-export const updateExpense=asyncWrapper(async(req,res,next)=>{
-    const expense=await expenseModel.findByIdAndUpdate(req.params.id,req.body)
-    if (!expense) {
-        return next(new NotFoundError(`expense not found`));
-    }
-    return res.status(200).json(expense)
-})
+
+
 export const getUserExpense = asyncWrapper(async (req, res, next) => {
     const expense = await Expense.findOne({ _id: req.params.id, user: req.user.id });
     if (!expense) {

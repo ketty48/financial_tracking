@@ -1,36 +1,68 @@
-/**
- * Calculates the duration between two dates and returns it in the appropriate unit (Minutes, Hours, or Days).
- *
- * @param {string} startDate - The start date in the format "YYYY-MM-DDTHH:mm:ss.sssZ".
- * @param {string} endDate - The end date in the format "YYYY-MM-DDTHH:mm:ss.sssZ".
- * @returns {Object} An object containing the duration in the appropriate unit and its type.
- * @example
- * const duration = durationCalculator('2022-01-01T10:30:00.000Z', '2022-01-01T11:30:00.000Z');
- * console.log(duration); // Output: { durationPeriod: 1, durationType: 'Hours' }
- */
-export const durationCalculator = (startDate, endDate) => {
-    const duration = {
-        durationPeriod: 0,
-        durationType: ''
-    };
+const calculateTotalIncome = async (userId) => {
+ 
+  const user = await UserModel.findById(userId);
+  return user.income;
+};
+
+const calculateTotalExpenses = async (userId) => {
+  const currentDate = new Date();
+  const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+
+  const totalExpenses = await ExpenseModel.aggregate([
+      {
+          $match: {
+              user: userId,
+              createdAt: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
+          }
+      },
+      {
+          $group: {
+              _id: null,
+              total: { $sum: "$amount" }
+          }
+      }
+  ]);
+
+  return totalExpenses.length > 0 ? totalExpenses[0].total : 0;
+};
+const checkExpenseExceedsIncome = async (userId) => {
+  const totalExpenses = await calculateTotalExpenses(userId);
+  const user = await UserModel.findById(userId);
+  const income = user.income;
+
+  if (totalExpenses > income) {
+      // Trigger notification
+      sendExpenseExceedsIncomeNotification(userId);
+  }
   
-    var startDateAsNumber = new Date(startDate).getTime();
-    var endDateAsNumber = new Date(endDate).getTime();
-    var oneHour = 1000*60*60;
-    var difference = endDateAsNumber - startDateAsNumber;
-    var numberOfHours = difference/oneHour;
-    
-    if (numberOfHours < 1) {
-      let numberOfMinutes = difference/(1000*60);
-      duration.durationPeriod = numberOfMinutes;
-      duration.durationType = "Minutes"; 
-    } else if (numberOfHours >= 1 && numberOfHours < 24) {
-      duration.durationPeriod = numberOfHours;
-      duration.durationType = "Hours"
-    } else if (numberOfHours >= 24 && numberOfHours < 168) {
-      duration.durationPeriod = numberOfHours/24;
-      duration.durationType = "Days"
-    }
-  
-    return duration;
-  };
+};
+
+const sendExpenseExceedsIncomeNotification = async(userId) => {
+  const user = await UserModel.findById(userId);
+  const message = `Dear ${user.name}, your total expenses have exceeded your income. Please review your spending.`;
+  NotificationService.sendEmail(user.email, "Expense Exceeds Income Alert", message);
+};
+
+
+const calculateTotalBudget = async (userId) => {
+  const budgets = await BudgetModel.find({ user: userId });
+  return budgets.reduce((total, budget) => total + budget.limit, 0);
+};
+
+const checkBudgetExceedsIncome = async (userId) => {
+  const totalBudget = await calculateTotalBudget(userId);
+  const user = await UserModel.findById(userId);
+  const income = user.income;
+
+  if (totalBudget > income) {
+
+      sendBudgetExceedsIncomeNotification(userId);
+  }
+};
+
+const sendBudgetExceedsIncomeNotification = async(userId) => {
+  const user = await UserModel.findById(userId);
+  const message = `Dear ${user.name}, your total budget for the month has exceeded your income. Please review your budgeting.`;
+  NotificationService.sendEmail(user.email, "Budget Exceeds Income Alert", message);
+};

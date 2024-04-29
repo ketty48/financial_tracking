@@ -5,7 +5,7 @@ const Configs = {
     MONGODB_CONNECTION_STRING: process.env.MONGO_DB,
     CLIENT_APP: process.env.CLIENT_APP || 'http://localhost:5173',
     PORT: process.env.PORT,
-    JWT_SECRET_KEY: process.env.SECRET,
+    JWT_SECRET: process.env.SECRET,
     JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN,
     JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN,
     JWT_REFRESH_COOKIE_NAME: process.env.JWT_REFRESH_COOKIE_NAME,

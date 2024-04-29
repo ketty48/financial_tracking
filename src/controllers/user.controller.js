@@ -8,6 +8,8 @@ import { otpGenerator } from "../utils/otp.js";
 import { UnauthorizedError } from "../errors/UnauthorizedError.js";
 import jwt from "jsonwebtoken";
 import Token from "../models/authToken.model.js";
+import configuration from '../configs/index.js'
+import sendTokenCookie from "../middlewares/cookie.js";
 
 
 export const SignUp = asyncWrapper(async (req, res, next) => {
@@ -90,6 +92,8 @@ export const SignIn = asyncWrapper(async (req, res, next) => {
 
     // Find user
     const foundUser = await UserModel.findOne({ email: req.body.email });
+    
+
     if (!foundUser) {
         return next(new BadRequestError("Invalid email or password!"));
     };
@@ -98,7 +102,7 @@ export const SignIn = asyncWrapper(async (req, res, next) => {
     if (!foundUser.verified) {
         return next(new BadRequestError("Your account is not verified!"));
     }
-
+    
     // Verify password
     const isPasswordVerfied = await bcryptjs.compareSync(req.body.password, foundUser.password);
     if (!isPasswordVerfied) {
@@ -106,13 +110,12 @@ export const SignIn = asyncWrapper(async (req, res, next) => {
     }
 
     // Generate token
-    const token = jwt.sign({ id: foundUser.id, email: foundUser.email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ id: foundUser.id, email: foundUser.email }, configuration.JWT_SECRET, { expiresIn: "1h" });
+    sendTokenCookie(token, res);
 
-    res.status(200).json({
-        message: "User logged in!",
-        token: token,
-        user: foundUser
-    });
+    res.status(200).json({ message: 'User logged in!', user: foundUser });
+
+   
 });
 
 export const ForgotPassword = asyncWrapper(async (req, res, next) => {
