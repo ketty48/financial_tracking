@@ -196,3 +196,20 @@ export const ResetPassword = asyncWrapper(async (req, res, next) => {
         })
     }
 });
+export const updateUser = asyncWrapper(async (req, res, next) => {
+    const foundUser = await UserModel.findById(req.user.id);
+    if (!foundUser) {
+        return next(new BadRequestError("User not found!"));
+    }
+    
+    const updatedUser = await UserModel.findByIdAndUpdate(req.user.id, req.body, { new: true });
+
+    if (!updatedUser) {
+        return next(new InternalServerError("Failed to update user!"));
+    }
+
+    return res.status(200).json({
+        message: "User updated!",
+        user: updatedUser
+    });
+});

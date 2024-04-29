@@ -1,7 +1,8 @@
 import express from 'express';
 const budgetRouter = express.Router();
 import { addBudget,getUserBudgets,getBugets, getBuget , updateBudget ,deleteBudget,getUserBudget,updateUserBudget,deleteUserBudget} from '../controllers/budget.controller.js';
-
+import { requireAuth } from '../middlewares/authorization.js';
+budgetRouter.use(requireAuth);
 
 budgetRouter.post('/add', addBudget);
 budgetRouter.get('/listUser', getUserBudgets);

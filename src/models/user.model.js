@@ -18,6 +18,10 @@ const UserSchema = new Schema({
         type: Date,
         required: false,
     },
+    income:{
+    type: Number,
+    required: false
+},
     verified: {
         type: Boolean,
         required: true,

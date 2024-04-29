@@ -5,16 +5,19 @@ import cors from "cors";
 import mongoose from "mongoose";
 import configurations from "./configs/index.js";
 import Routers from "./routes/index.js";
+import {job} from "./utils/check.js";
+
 
 const corsOptions = {
     allowedHeaders: ["Authorization","Content-Type"],
     methods: ["GET", "POST", "UPDATE" ],
     origin: ["http://192.168.1.150:8080", "//https://contact-app-client-xbck.onrender.com/"],
 }
-
+job.start()
 const app = express();
 app.use(cors());
 app.use(express.json());
+
 app.use('/', Routers);
 
 mongoose.connect(configurations.MONGODB_CONNECTION_STRING.toString())

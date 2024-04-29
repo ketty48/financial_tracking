@@ -4,18 +4,29 @@ import { validationResult } from 'express-validator';
 import asyncWrapper from '../middlewares/async.js';
 import Expense from '../models/expense.model.js';
 import user from '../models/user.model.js';
+import { checkExpenseBeforeInsert} from "../utils/helperFunctions.js"
 
 
 export const addExpense = asyncWrapper(async (req, res, next) => {
   
     const { category, amount, description } = req.body;
+    const isExpenseAllowed = await checkExpenseBeforeInsert(req.user.id, amount);
+    if (!isExpenseAllowed) {
+      return res.status(400).json({ message: "Expense exceeds income. Not allowed." });
+    }
+  //   if (amount > user.income) {
+  //     // If the expense exceeds income, send a notification to the user
+  //     await sendExpenseExceedsIncomeNotification(req.user.id);
+  // }
+
     const newExpense = new Expense({
-      user: req.user.id, // Assuming you're using authentication and storing user ID in req.user
-      category,
+      user: req.user.id, 
       amount,
       description
     });
     await newExpense.save();
+  
+ 
     if (newExpense) {
         return res.status(201).json({
             message: "expense added!",
