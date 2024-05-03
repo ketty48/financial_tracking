@@ -113,7 +113,7 @@ export const SignIn = asyncWrapper(async (req, res, next) => {
     const token = jwt.sign({ id: foundUser.id, email: foundUser.email }, configuration.JWT_SECRET, { expiresIn: "1h" });
     sendTokenCookie(token, res);
 
-    res.status(200).json({ message: 'User logged in!', user: foundUser });
+    res.status(200).json({ message: 'User logged in!', token});
 
    
 });
@@ -132,7 +132,7 @@ export const ForgotPassword = asyncWrapper(async (req, res, next) => {
     };
 
     // Generate token
-    const token = jwt.sign({ id: foundUser.id }, process.env.JWT_SECRET, { expiresIn: "15m" });
+    const token = jwt.sign({ id: foundUser.id }, configuration.JWT_SECRET, { expiresIn: "15m" });
 
     // Recording the token to the database
     await Token.create({
@@ -159,7 +159,7 @@ export const ResetPassword = asyncWrapper(async (req, res, next) => {
     };
 
     // Verify token
-    const decoded = await jwt.verify(req.body.token, process.env.JWT_SECRET);
+    const decoded = await jwt.verify(req.body.token, configuration.JWT_SECRET);
     if (!decoded) {
         return next(new BadRequestError("Invalid token!"));
     }

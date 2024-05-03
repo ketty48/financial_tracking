@@ -2,9 +2,11 @@ import { sendEmail } from "../utils/sendEmail.js";
 import UserModel from "../models/user.model.js";
 import BudgetModel from "../models/budget.model.js";
 import ExpenseModel from "../models/expense.model.js";
+import asyncWrapper from "../middlewares/async.js";
 export const calculateTotalIncome = async (userId) => {
  
   const user = await UserModel.findById(userId);
+  console.log(user)
   return user.income;
 };
 
@@ -30,45 +32,71 @@ export const calculateTotalExpenses = async (userId) => {
 
   return totalExpenses.length > 0 ? totalExpenses[0].total : 0;
 };
-export const checkExpenseBeforeInsert = async (userId, newExpenseAmount) => {
 
+
+export const checkExpenseBeforeInsert = asyncWrapper(async (userId, newExpenseAmount) => {
   const totalExpenses = await calculateTotalExpenses(userId);
   const user = await UserModel.findById(userId);
-  console.log(user)
+  console.log(user);
   const income = user.income;
   const updatedTotalExpenses = totalExpenses + newExpenseAmount;
 
   if (updatedTotalExpenses > income) {
-
     sendExpenseExceedsIncomeNotification(userId);
     return false; 
   } else {
     return true; 
   }
-};
+});
+
 
 export const sendExpenseExceedsIncomeNotification = async(userId) => {
   const user = await UserModel.findById(userId);
-  const message = `Dear ${user.name}, your total expenses have exceeded your income. Please review your spending.`;
+  const message = `Dear, your total expenses have exceeded your income. Please review your spending.`;
 sendEmail(user.email, "Expense Exceeds Income Alert", message);
 };
 
-
-export const calculateTotalBudget = async (userId) => {
-  const budgets = await BudgetModel.find({ user: userId });
-  return budgets.reduce((total, budget) => total + budget.limit, 0);
+export const calculateTotalBudget = (existingBudgets, newBudgets) => {
+  const totalExistingBudget = existingBudgets.reduce((total, budget) => total + budget.limit, 0);
+  const totalNewBudget = newBudgets.reduce((total, budget) => total + budget.limit, 0);
+  return totalExistingBudget + totalNewBudget;
 };
 
-export const checkBudgetExceedsIncome = async (userId) => {
-  const totalBudget = await calculateTotalBudget(userId);
-  const user = await UserModel.findById(userId);
-  const income = user.income;
 
-  if (totalBudget > income) {
+export const checkBudgetExceedsIncome = async (userId, budgets) => {
+  try {
+    // Find existing budgets for the user
+    let existingBudgets = await BudgetModel.findOne({ user: userId });
 
-      sendBudgetExceedsIncomeNotification(userId);
+    if (!existingBudgets) {
+      // If no existing budgets found, set existingBudgets to an empty array
+      existingBudgets = { budgets: [] };
+    }
+
+    console.log('Existing budgets:', existingBudgets);
+
+    // Calculate total budget
+    const totalBudget = calculateTotalBudget(existingBudgets.budgets, budgets);
+    console.log('Total budget:', totalBudget);
+
+    // Check if total budget exceeds user income
+    const user = await UserModel.findById(userId);
+    const income = user.income;
+    console.log('User income:', income);
+
+    if (totalBudget > income) {
+      await sendBudgetExceedsIncomeNotification(userId);
+      return true; 
+    }
+    return false;
+  } catch (error) {
+    console.error('Error checking budget exceeds income:', error);
+    throw error;
   }
 };
+
+
+
 
 export const sendBudgetExceedsIncomeNotification = async(userId) => {
   const user = await UserModel.findById(userId);

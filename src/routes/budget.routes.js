@@ -1,18 +1,16 @@
 import express from 'express';
+
 const budgetRouter = express.Router();
-import { addBudget,getUserBudgets,getBugets, getBuget , updateBudget ,deleteBudget,getUserBudget,updateUserBudget,deleteUserBudget} from '../controllers/budget.controller.js';
+import { addBudgets,getUserBudgets,getUserBudget,updateUserBudget,deleteUserBudget} from '../controllers/budget.controller.js';
 import { requireAuth } from '../middlewares/authorization.js';
 budgetRouter.use(requireAuth);
 
-budgetRouter.post('/add', addBudget);
-budgetRouter.get('/listUser', getUserBudgets);
-budgetRouter.put('/update', updateBudget);
-budgetRouter.get('/findById',getBugets);
-budgetRouter.delete('/delete', deleteBudget);
+budgetRouter.post('/add', addBudgets);
+budgetRouter.get('/list', getUserBudgets);
 budgetRouter.get('/userBudget',getUserBudget)
 budgetRouter.put('/updateUserBudget',updateUserBudget)
 budgetRouter.delete('/deleteUserBudget',deleteUserBudget)
-budgetRouter.get('/getBuget',getBuget)
+
 
 
 

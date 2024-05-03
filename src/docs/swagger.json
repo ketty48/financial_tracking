@@ -1,0 +1,701 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Financial Tracker",
+    "description": "This is the API Specification for the financial tracking app backend server.",
+    "contact": {
+      "email": "ketymagnifique@gmail.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    },
+    "version": "1.0.0"
+  },
+  "externalDocs": {
+    "description": "Get source code",
+    "url": "https://github.com/ketty48/financial_tracking.git"
+  },
+  "basePath": "/",
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Local server"
+    },
+    {
+      "url": "https://financial-tracker.onrender.com",
+      "description": "Production server"
+    }
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "paths": {
+    "/financial/user/signup": {
+      "post": {
+        "summary": "Create account",
+        "description": "Create a new account",
+        "tags": ["Authentication"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "$ref": "#/definitions/account"
+            },
+            "required": true,
+            "description": "Account object"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Account created"
+          }
+        }
+      }
+    },
+    "/financial/user/signin": {
+      "post": {
+        "summary": "Login",
+        "description": "Login to the application",
+        "tags": ["Authentication"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "$ref": "#/definitions/account"
+            },
+            "required": true,
+            "description": "Credentials object"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Login successful"
+          }
+        }
+      }
+    },
+    "/financial/user/verify": {
+      "post": {
+        "summary": "Verify",
+        "description": "Verify your account",
+        "tags": ["Otp"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "$ref": "#/definitions/otp"
+            },
+            "required": true,
+            "description": "Credentials object"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account Verfied"
+          }
+        }
+      }
+    },
+    "/financial/user/forgotPassword": {
+      "post": {
+        "summary": "Forgot password",
+        "description": "Forgot password",
+        "tags": ["Forgot Password"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "$ref": "#/definitions/forgot"
+            },
+            "required": true,
+            "description": "Credentials object"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Login successful"
+          }
+        }
+      }
+    },
+    "/financial/user/resetPassword": {
+      "post": {
+        "summary": "Reset",
+        "description": "Reset Password",
+        "tags": ["Reset"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "$ref": "#/definitions/reset"
+            },
+            "required": true,
+            "description": "Credentials object"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reset Password successfully"
+          }
+        }
+      }
+    },
+    "/financial/expenses/add": {
+      "post": {
+        "summary": "Create a expense",
+        "description": "Create a new expense",
+        "tags": ["Expenses"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "$ref": "#/definitions/expenses"
+            },
+            "required": true,
+            "description": "expense object"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "expense created"
+          }
+        }
+      }
+    },
+    "/financial/expenses/list": {
+      "get": {
+        "summary": "Get All expenses",
+        "description": "Get All expenses",
+        "tags": ["Expenses"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "expenses Fetched successfully"
+          },
+          "404": {
+            "description": "Error for fetching expenses"
+          }
+        }
+      }
+    },
+    "/financial/expenses/userExpense": {
+      "get": {
+        "summary": "Get a expense by ID",
+        "description": "Get a expense by ID",
+        "tags": ["Expenses"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID of the expense to retrieve",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "404": {
+            "description": "expense not found"
+          }
+        }
+      }
+    },
+    "/financial/expenses/updateUserExpense": {
+      "put": {
+        "summary": "Update a expense by ID",
+        "description": "Update a expense by ID",
+        "tags": ["Expenses"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID of the expense to update",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "$ref": "#/definitions/expenses"
+            },
+            "required": true,
+            "description": "Updated expense object"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "expense updated"
+          },
+          "404": {
+            "description": "expense not found"
+          }
+        }
+      }
+    },
+    "/financial/expenses/deleteUserExpense": {
+      "delete": {
+        "summary": "Delete a expense by ID",
+        "description": "Delete a expense by ID",
+        "tags": ["Expenses"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID of the expense to delete",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "expense deleted"
+          },
+          "404": {
+            "description": "expense not found"
+          }
+        }
+      }
+    },
+    "/financial/goals/add": {
+      "post": {
+        "summary": "Create a goal",
+        "description": "Create a new goal",
+        "tags": ["Goals"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "$ref": "#/definitions/goals"
+            },
+            "required": true,
+            "description": "goal object"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "goal created"
+          }
+        }
+      }
+    },
+    "/financial/goals/list": {
+      "get": {
+        "summary": "Get All goals",
+        "description": "Get All goals",
+        "tags": ["Goals"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "goals Fetched successfully"
+          },
+          "404": {
+            "description": "Error for fetching goals"
+          }
+        }
+      }
+    },
+    "/financial/goals/userGoal": {
+      "get": {
+        "summary": "Get a goal by ID",
+        "description": "Get a goal by ID",
+        "tags": ["Goals"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID of the goal to retrieve",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "404": {
+            "description": "goal not found"
+          }
+        }
+      }
+    },
+    "/financial/goals/updateUserGoal": {
+      "put": {
+        "summary": "Update a goal by ID",
+        "description": "Update a goal by ID",
+        "tags": ["Goals"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID of the goal to update",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "$ref": "#/definitions/goals"
+            },
+            "required": true,
+            "description": "Updated goal object"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "goal updated"
+          },
+          "404": {
+            "description": "goal not found"
+          }
+        }
+      }
+    },
+    "/financial/goals/deleteUserGoal": {
+      "delete": {
+        "summary": "Delete a goal by ID",
+        "description": "Delete a goal by ID",
+        "tags": ["Goals"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID of the goal to delete",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "goal deleted"
+          },
+          "404": {
+            "description": "goal not found"
+          }
+        }
+      }
+    },
+    "/financial/budget/add": {
+      "post": {
+        "summary": "Create a budget",
+        "description": "Create a new budget",
+        "tags": ["Budgets"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "$ref": "#/definitions/budgets"
+            },
+            "required": true,
+            "description": "budget object"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "budget created"
+          }
+        }
+      }
+    },
+    "/financial/budget/list": {
+      "get": {
+        "summary": "Get All budgets",
+        "description": "Get All budgets",
+        "tags": ["Budgets"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "budgets Fetched successfully"
+          },
+          "404": {
+            "description": "Error for fetching budgets"
+          }
+        }
+      }
+    },
+    "/financial/budget/userBudget": {
+      "get": {
+        "summary": "Get a budget by ID",
+        "description": "Get a budget by ID",
+        "tags": ["Budgets"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID of the budget to retrieve",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "404": {
+            "description": "budget not found"
+          }
+        }
+      }
+    },
+    "/financial/budget/updateUserBudget": {
+      "put": {
+        "summary": "Update a budget by ID",
+        "description": "Update a budget by ID",
+        "tags": ["Budgets"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID of the budget to update",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "$ref": "#/definitions/budgets"
+            },
+            "required": true,
+            "description": "Updated budget object"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "budget updated"
+          },
+          "404": {
+            "description": "budget not found"
+          }
+        }
+      }
+    },
+    "/financial/budget/deleteUserBudget": {
+      "delete": {
+        "summary": "Delete a budget by ID",
+        "description": "Delete a budget by ID",
+        "tags": ["Budgets"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID of the budget to delete",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "budget deleted"
+          },
+          "404": {
+            "description": "budget not found"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "account": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 6
+        },
+      
+        "income": {
+          "type": "number"
+        }
+      },
+      "required": ["email", "password"]
+    },
+    "otp": {
+      "type": "object",
+      "properties": {
+        "otp": {
+          "type": "number"
+        }
+      },
+      "required": ["otp"]
+    },
+    "forgot": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      },
+      "required": ["email"]
+    },
+    "reset": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
+        },
+        "id":{
+          "type": "string"
+        },
+
+        "password": {
+          "type": "string"
+        }
+      },
+      "required": ["token", "password"]
+    },
+    "expenses": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "number"
+        },
+        "description": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["category", "amount", "description", "date"]
+    },
+    "goals": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "targetAmount": {
+          "type": "number"
+        },
+        "deadline": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "achieved": {
+          "type": "boolean"
+        }
+      },
+      "required": ["title", "targetAmount", "deadline", "achieved"]
+    },
+    "budgets": {
+      "type": "object",
+        "properties": {
+          "budgets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "category": {
+                  "type": "string"
+                },
+                "limit": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        },
+        "required": ["category", "limit"]
+      }
+  },
+  "securityDefinitions": {
+    "BearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  }
+}

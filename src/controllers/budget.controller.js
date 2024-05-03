@@ -1,77 +1,143 @@
 
 import asyncWrapper from "../middlewares/async.js";
-import budget from "../models/budget.model.js";
-export const addBudget = asyncWrapper(async (req, res, next) => {
-    const { category, limit } = req.body;
+import Budget from "../models/budget.model.js";
+import UserModel from "../models/user.model.js";
+import { BadRequestError } from "../errors/index.js";
+import {checkBudgetExceedsIncome ,calculateTotalBudget } from "../utils/helperFunctions.js"
+export const addBudgets = asyncWrapper(async (req, res, next) => {
+  const budgets = req.body.budgets;
+  console.log('Received budgets:', budgets);
+  const userId = req.user.id;
+
+
+  if (!budgets || !Array.isArray(budgets)) {
+    return res.status(400).json({ error: 'Budgets array is required' });
+  }
+  const existingBudgets = await Budget.find({ user: userId });
+
+  const exceedsIncome = await checkBudgetExceedsIncome(userId, budgets);
+  if (exceedsIncome) {
+    console.log('Total budget exceeds user income. Aborting insertion.');
+    return res.status(400).json({ error: 'Total budget exceeds your income, review your budgets' });
+  }
+
+  if (existingBudgets && existingBudgets.length > 0) {
+
+    existingBudgets[0].budgets = [...existingBudgets[0].budgets, ...budgets];
+    await existingBudgets[0].save();
+  } else {
+
     const newBudget = new Budget({
-      user: req.user.id, 
-      category,
-      limit
+      user: userId,
+      budgets: budgets
     });
     await newBudget.save();
-    res.status(201).json({ message: 'Budget added successfully' });
-  });
+  }
+
+  res.status(201).json({ message: 'Budgets added successfully' });
+});
+
 
   export const getUserBudgets = asyncWrapper(async (req, res, next) => {
-    const budgets = await budget.findById({ user: req.user.id });
+    const budgets = await Budget.find({ user: req.user.id });
     if(!budgets){
-        return next(new NotFoundError(`Budgets not found`));
+        return next(new BadRequestError(`Budgets not found`));
     }
     res.status(200).json(budgets);
   });
-  export const getBugets= asyncWrapper(async (req, res, next) => {
-    const Budgets= await budget.find()
-    res.status(200).json(Budgets)
-
-})
-export const getBuget = asyncWrapper(async (req, res, next)=>{
-const budget= await budget.findById(req.params.id)
-if(!budget){
-    return next(new NotFoundError(`Budget not found`))
-}
-res.status(200).json(budget)
-
-})
-export const updateBudget = asyncWrapper(async (req, res, next) => {
-    const { category, limit } = req.body;
-    const budget = await budget.findByIdAndUpdate(req.params.id, { category, limit }, { new: true });
-    if (!budget) {
-        return next(new NotFoundError(`Budget not found`));
-    }
-
-    res.status(200).json(budget);
-});
-export const deleteBudget = asyncWrapper(async (req, res, next) => {
-    const budget = await budget.findByIdAndDelete(req.params.id);
-    if (!budget) {
-        return next(new NotFoundError(`Budget not found`));
-    }
-
-    res.status(200).json(budget);
-});
+ // getUserBudget function
 export const getUserBudget = asyncWrapper(async (req, res, next) => {
-    const budget = await budget.findOne({ _id: req.params.id, user: req.user.id });
+  const budgetId = req.query.id; 
+  const categoryId = req.query.categoryId; 
+  const userId = req.user.id;
+
+  // Find the user's budgets
+  const userBudgets = await Budget.findOne({ user: userId });
+
+  if (!userBudgets) {
+    return next(new BadRequestError(`Budget not found`));
+  }
+
+  let budget;
+
+  if (categoryId) {
+    budget = userBudgets.budgets.find(b => b._id.toString() === categoryId);
     if (!budget) {
-      return next(new NotFoundError(`Budget not found`));
+      return next(new BadRequestError(`Category not found in the budget`));
     }
-    res.status(200).json(budget);
-  });
-  
-  // Update budget by ID
-  export const updateUserBudget = asyncWrapper(async (req, res, next) => {
-    const { category, limit } = req.body;
-    const budget = await budget.findOneAndUpdate({ _id: req.params.id, user: req.user.id }, { category, limit }, { new: true });
+  } else if (budgetId) {
+   
+    budget = userBudgets.budgets.find(b => b._id.toString() === budgetId);
     if (!budget) {
-      return next(new NotFoundError(`Budget not found`));
+      return next(new BadRequestError(`Budget not found`));
     }
-    res.status(200).json(budget);
-  });
-  
-  // Delete budget by ID
-  export const deleteUserBudget = asyncWrapper(async (req, res, next) => {
-    const budget = await budget.findOneAndDelete({ _id: req.params.id, user: req.user.id });
-    if (!budget) {
-      return next(new NotFoundError(`Budget not found`));
+  } else {
+ 
+    budget = userBudgets.budgets;
+  }
+
+
+  res.status(200).json(budget);
+});
+
+ 
+export const updateUserBudget = asyncWrapper(async (req, res, next) => {
+  const budgetId = req.query.id; 
+  const categoryId = req.query.categoryId; 
+  const userId = req.user.id;
+  const { category, limit } = req.body;
+  const userBudgets = await Budget.findOne({ user: userId });
+
+  if (!userBudgets) {
+    return next(new BadRequestError(`Budget not found`));
+  }
+
+  let updatedBudget;
+  if (categoryId) {
+    const budgetToUpdate = userBudgets.budgets.find(b => b._id.toString() === categoryId);
+    if (!budgetToUpdate) {
+      return next(new BadRequestError(`Category not found in the budget`));
     }
-    res.status(200).json(budget);
-  });
+    budgetToUpdate.category = category;
+    budgetToUpdate.limit = limit;
+    updatedBudget = await userBudgets.save();
+  } else if (budgetId) {
+    const budgetToUpdate = userBudgets.budgets.find(b => b._id.toString() === budgetId);
+    if (!budgetToUpdate) {
+      return next(new BadRequestError(`Budget not found`));
+    }
+    budgetToUpdate.category = category;
+    budgetToUpdate.limit = limit;
+    updatedBudget = await userBudgets.save();
+  } else {
+    return next(new BadRequestError(`Invalid request parameters`));
+  }
+
+  res.status(200).json(updatedBudget);
+});
+export const deleteUserBudget = asyncWrapper(async (req, res, next) => {
+  const { id: budgetId } = req.query;
+  const userId = req.user.id;
+
+  // Find the user's budget object
+  const userBudget = await Budget.findOne({ user: userId });
+
+  if (!userBudget) {
+    return next(new BadRequestError(`Budget not found`));
+  }
+
+  // Find the index of the specified budget in the budgets array
+  const budgetIndex = userBudget.budgets.findIndex(b => b._id.toString() === budgetId);
+
+  if (budgetIndex === -1) {
+    return next(new BadRequestError(`Budget not found`));
+  }
+
+  // Remove the budget at the specified index from the budgets array
+  userBudget.budgets.splice(budgetIndex, 1);
+
+  // Save the updated userBudget
+  await userBudget.save();
+
+  res.status(200).json({ message: 'Budget deleted successfully' });
+});

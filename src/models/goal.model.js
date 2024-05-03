@@ -13,10 +13,6 @@ import { mongoose} from "mongoose";
       type: Number,
       required: true
     },
-    currentAmount: {
-      type: Number,
-      default: 0
-    },
     deadline: Date,
     achieved: {
       type: Boolean,

@@ -1,11 +1,11 @@
-import { mongoose} from "mongoose";
-
+import mongoose from "mongoose";
 const budgetSchema = new mongoose.Schema({
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true
-    },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  budgets: [{
     category: {
       type: String,
       required: true
@@ -14,8 +14,9 @@ const budgetSchema = new mongoose.Schema({
       type: Number,
       required: true
     }
-    // Add any additional budget fields here
-  });
-  
-  const Budget = mongoose.model('Budget', budgetSchema);
+  }]
+});
+
+
+const Budget = mongoose.model('Budget', budgetSchema);
 export default Budget;
